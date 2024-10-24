@@ -44,7 +44,9 @@ const manageRender = (function () {
         });
     }
 
-    const enableTileButtons = function () {
+    const resultDiv = document.querySelector('.gameResult');
+    const announceResult = function (gameResult) {
+        resultDiv.textContent = gameResult;
 
     }
 
@@ -66,7 +68,7 @@ const manageRender = (function () {
 
 
 
-    return {buildGameboardHTML, updateGameBoard, addTileListeners, disableTileButtons, colourWinningTiles}
+    return {buildGameboardHTML, updateGameBoard, addTileListeners, announceResult, disableTileButtons, colourWinningTiles}
 
 })();
 

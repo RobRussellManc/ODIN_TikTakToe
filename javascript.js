@@ -55,7 +55,7 @@ const getMoves = (function () {
         let validMove = false;
         while (!validMove) {
             playerMove =   autoPlayer.playerAutoMove(player) //  prompt('Your move: ');// prompt("Player 1 move: ");
-            console.log(player.name + ' move: ' + playerMove)
+            //console.log(player.name + ' move: ' + playerMove)
             validMove = gameMechanics.checkValidMove(gameBoard.getGameBoard(), playerMove);
         }
         return playerMove;
@@ -63,6 +63,7 @@ const getMoves = (function () {
 
     const getComputerMove = () => {
         let gameboard = gameBoard.getGameBoard();
+        //console.table(gameboard);
         const getRandomNumber = () => Math.floor(Math.random() * 3);
         
         let selectedMove = 'X';
@@ -74,7 +75,8 @@ const getMoves = (function () {
             // Get two random numbers
             randomNum1 = getRandomNumber();
             randomNum2 = getRandomNumber();
-            selectedMove = gameboard[randomNum1][randomNum2];            
+            selectedMove = gameboard[randomNum1][randomNum2]; 
+            console.log('computer move: ' +selectedMove ) ;         
         }
         
         return '' + randomNum1 + randomNum2;
@@ -116,7 +118,7 @@ const gameMechanics = (function () {
         let gameboard = gameBoard.getGameBoard();
         
         let [a, b] = playerMove.split("");
-        console.log(playerMove);
+        
         if (a > 2 || a < 0 || b > 2 || b < 0) {
             console.log('the move was outside the board bounds')
             return false;
@@ -181,13 +183,13 @@ const gameMechanics = (function () {
         }
 
         if (allEqual(diag1)) {
-            console.log(diag1WinningTiles)
+            //console.log(diag1WinningTiles)
             manageRender.colourWinningTiles(diag1WinningTiles)
             player.playerWins();
         }
 
         if (allEqual(diag2)) {
-            console.log(diag2WinningTiles)
+            //console.log(diag2WinningTiles)
             manageRender.colourWinningTiles(diag2WinningTiles)
             player.playerWins();
         }
@@ -201,7 +203,8 @@ const gameMechanics = (function () {
                 temp.push(element)
         }});
         
-        if (temp.length > 0) {
+        //console.log('draw check: ' + temp)
+        if (temp.length == 0) {
             gameBoard.setGameResult('draw');
         };
     };
@@ -230,16 +233,20 @@ const playGame = (function () {
         if (player1.hasWon() == true) {
             console.log('player 1 has won');
             gameBoard.setGameResult(player1.name);
+            manageRender.announceResult('Player 1 has won')
             return true
         }
 
         if (player2.hasWon() == true) {
             console.log('player 2 has won');
             gameBoard.setGameResult(player2.name);
+            manageRender.announceResult('Player 2 has won')
             return true
         }
-        if (gameBoard.getGameResult == 'draw') { 
+        
+        if (gameBoard.getGameResult() == 'draw') { 
             console.log('Its a draw');
+            manageRender.announceResult('Player 1 has won')
             return true
         }  
     }
@@ -250,18 +257,22 @@ const playGame = (function () {
 
         let validMove = gameMechanics.checkValidMove(tileClicked);
         if (validMove) {
+            console.log('It is a valid move')
             gameBoard.updateGameBoard(tileClicked, player1);
             manageRender.updateGameBoard();
-            //gameMechanics.checkforWinner(player1)
-            //gameMechanics.checkDraw();
+            gameMechanics.checkforWinner(player1)
+            gameMechanics.checkDraw();
         } else {
+            console.log('NOT a valid move')
             return
         }
         
         if (checkResult()) {
+            console.log('Disabling tile buttons1')
             manageRender.disableTileButtons()
             return
         } else {
+            console.log('Choosing computer move')
             let player2Move = getMoves.getComputerMove(player2);
             gameBoard.updateGameBoard(player2Move, player2);
             manageRender.updateGameBoard();
@@ -269,6 +280,7 @@ const playGame = (function () {
             gameMechanics.checkDraw();
     
             if (checkResult()) {
+                console.log('Disabling tile buttons2')
                 manageRender.disableTileButtons()
                 return
             }
