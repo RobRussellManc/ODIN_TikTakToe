@@ -1,0 +1,37 @@
+
+* {
+    box-sizing: border-box;
+}
+
+.gameboard {
+    display: grid;
+    grid-template-columns: repeat(3, 100px);
+    grid-template-rows: repeat(3, 100px);
+}
+
+
+.gametile {
+    width: 100px;
+    height: 100px;
+    background-color: grey;
+    border: 2px solid black;
+}
+
+
+.O {
+    background-color: aqua;
+}
+
+.X {
+    background-color: blanchedalmond;
+}
+
+.winningTile {
+    background-image: repeating-linear-gradient(
+        45deg,            /* Angle of the stripes */
+        rgba(82, 255, 2), /* Colour of the stripe (semi-transparent white) */
+        rgba(82, 255, 2) 10px, /* End of the stripe */
+        transparent 10px,        /* Start of the gap */
+        transparent 20px         /* End of the gap */
+    );
+}
