@@ -3,23 +3,68 @@ const allEqual = arr => arr.every(val => val === arr[0]);
 function createPlayer(name, marker) {
     const playersMarker = () => marker;
 
-    let isWinner = false;
-    const playerWins = () => isWinner = true;
-
-    const hasWon = () => isWinner;
-
-    // These next 2 aren't currently being used! Do I need them?
-    let playersCurrentMove = ''
-    const playersChosenMove = (chosenMove) => playersCurrentMove = chosenMove
-    const getCurrentMove = () => playersCurrentMove;
-
-    const resetPlayer = () => {
-        isWinner = false;
-        playersCurrentMove = '';
+    let score = 0;
+    //const scoredisplay = document.querySelector(`${name}scoredisplay`);
+    const increasePlayerScore = () => {
+        score++;
+        //scoredisplay.textContent = score;
     }
 
-    return {name, playersMarker, hasWon, playerWins, playersChosenMove, getCurrentMove, resetPlayer};
+    const getPlayerScore = () => score;
+
+    const resetPlayerScore = () => {
+        score = 0;
+    }
+
+    
+
+    return {name, playersMarker, increasePlayerScore, resetPlayerScore, getPlayerScore};
 }
+
+
+const gameRound = (function () {
+    let round = 0; 
+    const getRoundNumber = () => round;
+
+    const roundDisplay = document.querySelector('.roundNumber > span');
+    const increaseRound = () => {
+        round++;
+        roundDisplay.textContent = round;
+    }
+
+    let roundWinner = '';
+    const resultDiv = document.querySelector('.gameResult');
+    const setRoundWinner = (winner) => {
+        if (winner === 'draw') {
+            roundWinner = 'draw';
+            resultDiv.textContent = 'The round was a draw';
+        } else if (winner) { // Check if there's a player object as the winner
+            roundWinner = winner.name; // Set the player object as roundWinner
+            winner.increasePlayerScore(); // Increase the player's score
+            resultDiv.textContent = 'Round winner: ' + roundWinner; // Display the winner's name
+        } else {
+            roundWinner = '';
+            resultDiv.textContent = '';
+        }
+    };
+
+    
+
+    const getRoundWinner = () => roundWinner;
+    const resetRoundNumber = () => {
+        round = 0;
+        roundDisplay.textContent = round;
+    };
+    return {getRoundNumber, increaseRound, setRoundWinner, getRoundWinner, resetRoundNumber}
+})();
+
+const gameResult = (function () {
+    const gameWinner = '';
+    const setGameWinner = (winner) => gameWinner = winner;
+    const getGameWinner = () => gameWinner;
+
+    return {setGameWinner, getGameWinner}
+})();
 
 const autoPlayer = (function () {
     let player1Moves = ['01', '10', '11', '20', '22']
@@ -100,15 +145,15 @@ const gameBoard = (function () {
     }
 
     let gameResult;
-    const setGameResult = (result) => gameResult = result;
+    //const setGameResult = (result) => gameResult = result;
 
-    const getGameResult = () => gameResult;
+   
 
     const resetBoard = () => {
         board = [['1','2','3'], ['4','5','6'], ['7','8','9']];
     }
 
-    return {createGameBoard, getGameBoard, updateGameBoard, setGameResult, getGameResult, resetBoard};
+    return {createGameBoard, getGameBoard, updateGameBoard, resetBoard};
 })();
 
 
@@ -147,7 +192,8 @@ const gameMechanics = (function () {
             //console.log('Horizontal: ' + row);
             if (result) {
                 manageRender.colourWinningTiles(winningTiles)
-                player.playerWins();
+                gameRound.setRoundWinner(player);
+                //player.playerWins();
                 break;
             }
         }
@@ -165,7 +211,8 @@ const gameMechanics = (function () {
             //console.log('vertical: ' + row);
             if (result) {
                 manageRender.colourWinningTiles(winningTiles)
-                player.playerWins();
+                gameRound.setRoundWinner(player);
+                //player.playerWins();
                 break;
             }
         }
@@ -185,13 +232,15 @@ const gameMechanics = (function () {
         if (allEqual(diag1)) {
             //console.log(diag1WinningTiles)
             manageRender.colourWinningTiles(diag1WinningTiles)
-            player.playerWins();
+            gameRound.setRoundWinner(player);
+            //player.playerWins();
         }
 
         if (allEqual(diag2)) {
             //console.log(diag2WinningTiles)
-            manageRender.colourWinningTiles(diag2WinningTiles)
-            player.playerWins();
+            manageRender.colourWinningTiles(diag2WinningTiles);
+            gameRound.setRoundWinner(player);
+            //player.playerWins();
         }
     }
 
@@ -205,7 +254,8 @@ const gameMechanics = (function () {
         
         //console.log('draw check: ' + temp)
         if (temp.length == 0) {
-            gameBoard.setGameResult('draw');
+            gameRound.setRoundWinner('draw');
+            //gameBoard.setGameResult('draw');
         };
     };
        
@@ -230,25 +280,61 @@ const playGame = (function () {
     const player2 = createPlayer('player2', 'O');
 
     const checkResult = () => {
-        if (player1.hasWon() == true) {
-            console.log('player 1 has won');
-            gameBoard.setGameResult(player1.name);
-            manageRender.announceResult('Player 1 has won')
+        if (gameRound.getRoundWinner() || gameRound.getRoundWinner() == 'draw') {
             return true
+        }
+    }
+
+    const humanMove = (tileClicked) => {
+        console.log('It is a valid move')
+        gameBoard.updateGameBoard(tileClicked, player1);
+        manageRender.updateGameBoard();
+        gameMechanics.checkforWinner(player1)
+        gameMechanics.checkDraw();
+    }
+
+    
+    const computerMove = () => {
+        console.log('Choosing computer move')
+        let player2Move = getMoves.getComputerMove(player2);
+        gameBoard.updateGameBoard(player2Move, player2);
+        manageRender.updateGameBoard();
+        gameMechanics.checkforWinner(player2)
+        gameMechanics.checkDraw();
+    }
+
+    
+
+
+    const player1Turn = (tileClicked) => {
+        let validMove = gameMechanics.checkValidMove(tileClicked);
+        if (validMove) {
+            humanMove(tileClicked);
+        } else {
+            console.log('NOT a valid move')
+            return
         }
 
-        if (player2.hasWon() == true) {
-            console.log('player 2 has won');
-            gameBoard.setGameResult(player2.name);
-            manageRender.announceResult('Player 2 has won')
-            return true
+        if (checkResult()) {
+            console.log('Disabling tile buttons1')
+            manageRender.disableTileButtons()
+            manageRender.displayScore(player1, player2);
+            return
+        } else {
+            computerMove();
+            if (checkResult()) {
+                console.log('Disabling tile buttons2')
+                manageRender.disableTileButtons()
+                manageRender.displayScore(player1, player2);
+                return
+            }
         }
+
+    }
+
+    const player2Turn = () => {
+        if (!checkResult()) {computerMove();}
         
-        if (gameBoard.getGameResult() == 'draw') { 
-            console.log('Its a draw');
-            manageRender.announceResult('Player 1 has won')
-            return true
-        }  
     }
 
     const playerClicked = (tileClicked) => {
@@ -272,13 +358,7 @@ const playGame = (function () {
             manageRender.disableTileButtons()
             return
         } else {
-            console.log('Choosing computer move')
-            let player2Move = getMoves.getComputerMove(player2);
-            gameBoard.updateGameBoard(player2Move, player2);
-            manageRender.updateGameBoard();
-            gameMechanics.checkforWinner(player2)
-            gameMechanics.checkDraw();
-    
+            computerMove();
             if (checkResult()) {
                 console.log('Disabling tile buttons2')
                 manageRender.disableTileButtons()
@@ -289,17 +369,28 @@ const playGame = (function () {
         
     };
 
-    const resetGame = () => {
-        console.log('resetting...');
-        player1.resetPlayer();
-        player2.resetPlayer();
+
+    const nextRound = () => {
         gameBoard.resetBoard();
-        autoPlayer.resetAutoPlayer();
+        gameRound.setRoundWinner('');
+        gameRound.increaseRound();
         manageRender.buildGameboardHTML();
         manageRender.addTileListeners();
     }
 
-    return {playerClicked, resetGame}
+    const resetGame = () => {
+        console.log('resetting...');
+        player1.resetPlayerScore();
+        player2.resetPlayerScore();
+        gameBoard.resetBoard();
+        gameRound.resetRoundNumber();
+
+        manageRender.buildGameboardHTML();
+        manageRender.addTileListeners();
+        manageRender.displayScore(player1, player2);
+    }
+
+    return {playerClicked, resetGame, nextRound, player1Turn, player2Turn}
 })();
 
 

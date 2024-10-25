@@ -10,11 +10,22 @@
     <link rel="stylesheet" href="styles.css"></styles>
 </head>
 <body>
-    <div class="gameboard">
-
+    <button onclick="playGame.player2Turn()">Player 2 first</button>
+    <div class="mainContainer">
+        <div class="player1score scores">
+            <p>Player1</p>
+            <span class="player1scoredisplay">0</span>
+        </div>
+        <div class="gameboard"></div>
+        <div class="player2score scores">
+            <p>Player2</p>
+            <span class="player2scoredisplay">0</span>
+        </div>
     </div>
-
+    
+    <button onclick="playGame.nextRound()">Next round</button>
     <button onclick="playGame.resetGame()">Reset game</button>
+    <div class="roundNumber">Round number: <span>0</span></div>
     <div class="gameResult"></div>
     
 </body>

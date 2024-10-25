@@ -39,16 +39,17 @@ const manageRender = (function () {
     const addTileListeners = function () {
         gameButtons.forEach(element => {
             element.addEventListener('click', () =>{
-                playGame.playerClicked(element.id);
+                playGame.player1Turn(element.id);
             })
         });
     }
 
+    /*
     const resultDiv = document.querySelector('.gameResult');
     const announceResult = function (gameResult) {
         resultDiv.textContent = gameResult;
-
     }
+        */
 
     const disableTileButtons = function () {
         console.log('disabling buttons...')
@@ -65,10 +66,18 @@ const manageRender = (function () {
         });
     }
 
+    const score1display = document.querySelector('.player1scoredisplay');
+    const score2display = document.querySelector('.player2scoredisplay');
+    const displayScore = (player1, player2) => {
+        score1display.textContent = player1.getPlayerScore();
+        score2display.textContent = player2.getPlayerScore();
+
+    }
 
 
 
-    return {buildGameboardHTML, updateGameBoard, addTileListeners, announceResult, disableTileButtons, colourWinningTiles}
+
+    return {buildGameboardHTML, updateGameBoard, addTileListeners, disableTileButtons, colourWinningTiles, displayScore}
 
 })();
 
